@@ -21,17 +21,20 @@ async def verify_api_key(x_api_key: str = Header(...)):
     """Middleware: Header mein X-API-Key check karo. Agar invalid toh 403 error."""
     if x_api_key not in users_db:
         raise HTTPException(status_code=403, detail="Invalid or missing API Key")
-    return x_api_key  # Agar key sahi hai toh wapas bhejo
+    return x_api_key
 
-# --- Usage Tracking ---
+# --- Usage Tracking (30 Free + 10 Bonus = 40 Total) ---
 def track_usage(api_key: str):
-    """Usage track karo aur limit check karo (30 calls)"""
+    """Usage track karo aur limit check karo (30 free + 10 bonus calls)"""
     user = users_db[api_key]
-    if user["calls_used"] >= 30:
+    
+    # Agar 40 calls ho chuki hain (30 free + 10 bonus), toh 402 error do.
+    if user["calls_used"] >= 40:
         raise HTTPException(
             status_code=402,
-            detail="Payment Required. You have used all 30 free calls. Please upgrade."
+            detail="Payment Required. You have used all 30 free calls and 10 bonus calls. Please upgrade."
         )
+    
     user["calls_used"] += 1
     return user
 
@@ -47,7 +50,7 @@ async def register_user(name: str):
     return {
         "api_key": api_key,
         "name": name,
-        "message": "Keep this API Key safe. You have 30 free calls."
+        "message": "Keep this API Key safe. You have 30 free calls + 10 bonus calls (Total 40)."
     }
 
 # --- Endpoint 2: Chat (Main API) ---
@@ -57,28 +60,46 @@ async def chat(
     api_key: str = Depends(verify_api_key)
 ):
     user = track_usage(api_key)
-    # Mock reply (abhi ke liye)
+    
+    # Mock reply
     reply = f"Hello {user['name']}! You sent: {request.message}. This is a mock reply."
+    
+    # --- Bonus Calculation Logic ---
+    calls_used = user["calls_used"]
+    free_remaining = max(0, 30 - calls_used)          # Abhi kitni free calls bachi hain?
+    bonus_used = max(0, calls_used - 30)              # Kitni bonus calls use ho chuki hain?
+    bonus_remaining = max(0, 10 - bonus_used)         # Kitni bonus calls bachi hain?
+    total_remaining = free_remaining + bonus_remaining # Total remaining calls
+
     return {
         "reply": reply,
         "usage": {
-            "calls_used": user["calls_used"],
-            "remaining": 30 - user["calls_used"]
+            "calls_used": calls_used,
+            "free_remaining": free_remaining,
+            "bonus_remaining": bonus_remaining,
+            "total_remaining": total_remaining
         }
     }
 
 # --- Endpoint 3: Usage Check ---
 @app.get("/usage")
 async def get_usage(api_key: str = Depends(verify_api_key)):
-    """Check karo ke kitni calls bachi hain."""
+    """Check karo ke kitni calls bachi hain (Free + Bonus)."""
     user = users_db[api_key]
-    remaining = 30 - user["calls_used"]
+    calls_used = user["calls_used"]
+    
+    free_remaining = max(0, 30 - calls_used)
+    bonus_used = max(0, calls_used - 30)
+    bonus_remaining = max(0, 10 - bonus_used)
+    total_remaining = free_remaining + bonus_remaining
+    
     return {
-        "api_key": api_key[:8] + "...",  # Security: Sirf pehle 8 chars
-        "calls_used": user["calls_used"],
-        "calls_limit": 30,
-        "remaining_calls": remaining,
-        "status": "active" if remaining > 0 else "payment_required"
+        "api_key": api_key[:8] + "...",
+        "calls_used": calls_used,
+        "free_remaining": free_remaining,
+        "bonus_remaining": bonus_remaining,
+        "total_remaining": total_remaining,
+        "status": "active" if total_remaining > 0 else "payment_required"
     }
 
 # --- Endpoint 4: Root Check ---
