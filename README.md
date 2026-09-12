@@ -30,6 +30,9 @@ This version upgrades the app into a more polished, business-ready backend with:
 - `GET /plans` - view pricing plan options
 - `GET /health` - API health check
 - `GET /docs` - interactive FastAPI docs
+- `POST /billing/upgrade` - upgrade user plan and payment status
+- `GET /admin` - admin dashboard for users and stats
+- real OpenAI-powered AI replies when `OPENAI_API_KEY` is configured
 
 ## Setup
 
@@ -43,6 +46,21 @@ python -m venv .venv
 pip install -r requirements.txt
 python main.py
 ```
+
+## Environment variables
+
+Create a `.env` file in the project root if you want to enable real AI responses and custom settings:
+
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-4o-mini
+ADMIN_KEY=your-admin-secret
+HOST=0.0.0.0
+PORT=8000
+MAX_MESSAGE_LENGTH=2000
+```
+
+If `OPENAI_API_KEY` is not set, the app falls back to a polished mock AI reply.
 
 ## Example usage
 
@@ -71,11 +89,11 @@ curl -H "X-API-Key: YOUR_API_KEY" "http://localhost:8000/usage"
 
 This is a strong, polished starter project that can be extended with:
 
-- database persistence
-- real AI model integration
+- real AI model integration (now enabled via environment variables)
 - Stripe or Razorpay billing
 - admin dashboard
 - analytics and logs
+- deployment to cloud platforms
 
 ## Project status
 
