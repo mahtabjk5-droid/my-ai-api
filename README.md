@@ -1,58 +1,71 @@
 # AI Revenue API
 
-A professional FastAPI project designed as a clean SaaS-style AI API starter for monetization, onboarding, and usage tracking.
+A production-style FastAPI backend built as a SaaS starter for AI usage tracking, onboarding, API key authentication, and monetization-ready APIs.
 
-## What was fixed
+## Overview
 
-The original project had several issues:
-
-- weak input validation
-- inconsistent API design
-- no structured response models
-- ambiguous usage tracking logic
-- no professional project documentation
-
-This version upgrades the app into a more polished, business-ready backend with:
-
-- secure API key-based authentication
-- validated request models
-- structured response schemas
-- usage tracking with free and bonus calls
-- health, plans, and docs endpoints
-- industry-style project organization
+This project was designed to transform a basic API into a more polished backend with realistic SaaS patterns. It includes secure authentication, structured responses, rate limiting, and a clean API architecture suitable for portfolio and demo use.
 
 ## Features
 
-- `POST /register` - create a new API key
-- `GET /register` - register with a query parameter
-- `POST /chat` - send a message using the API key
-- `GET /usage` - check remaining quota
-- `GET /plans` - view pricing plan options
-- `GET /health` - API health check
-- `GET /docs` - interactive FastAPI docs
-- `POST /billing/upgrade` - upgrade user plan and payment status
-- `GET /admin` - admin dashboard for users and stats
-- real OpenAI-powered AI replies when `OPENAI_API_KEY` is configured
+- User registration with generated API keys
+- API key authentication via request headers
+- Request validation and structured responses
+- Usage tracking with plan-based limits
+- Free and premium plan logic
+- Health and monitoring endpoints
+- Admin-style dashboard access
+- OpenAI integration when configured
+- Mock fallback responses when no API key is available
+
+## Tech Stack
+
+- Python 3.11+
+- FastAPI
+- Pydantic
+- SQLite
+- OpenAI SDK
+- Pytest
+
+## Project Structure
+
+```text
+my-ai-api/
+├── main.py
+├── requirements.txt
+├── .env.example
+├── README.md
+├── tests/
+└── app/
+```
 
 ## Setup
 
-1. Create a virtual environment
-2. Install dependencies
-3. Start the API
+### 1. Create a virtual environment
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
+source .venv/bin/activate
 ```
 
-## Environment variables
+On Windows:
 
-Create a `.env` file in the project root if you want to enable real AI responses and custom settings:
+```bash
+.venv\Scripts\activate
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure environment variables
+
+Create a `.env` file:
 
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_API_KEY=your_api_key_here
 OPENAI_MODEL=gpt-4o-mini
 ADMIN_KEY=your-admin-secret
 HOST=0.0.0.0
@@ -60,41 +73,46 @@ PORT=8000
 MAX_MESSAGE_LENGTH=2000
 ```
 
-If `OPENAI_API_KEY` is not set, the app falls back to a polished mock AI reply.
+### 4. Run the application
 
-## Example usage
+```bash
+python main.py
+```
 
-Register a user:
+or:
+
+```bash
+uvicorn main:app --reload
+```
+
+## Example Requests
+
+### Register a user
 
 ```bash
 curl "http://localhost:8000/register?name=John"
 ```
 
-Chat with the API:
+### Send a chat request
 
 ```bash
 curl -X POST "http://localhost:8000/chat" \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"message": "Hello from the AI Revenue API"}'
+  -d '{"message": "Hello from the AI API"}'
 ```
 
-Check usage:
+### Check usage
 
 ```bash
-curl -H "X-API-Key: YOUR_API_KEY" "http://localhost:8000/usage"
+curl "http://localhost:8000/usage" \
+  -H "X-API-Key: YOUR_API_KEY"
 ```
 
 ## Notes
 
-This is a strong, polished starter project that can be extended with:
+This project is suitable as a portfolio backend, SaaS starter, or prototype for AI monetization features. It demonstrates production-oriented patterns while remaining easy to extend.
 
-- real AI model integration (now enabled via environment variables)
-- Stripe or Razorpay billing
-- admin dashboard
-- analytics and logs
-- deployment to cloud platforms
+## License
 
-## Project status
-
-The codebase has been validated with Python syntax checks and dependency verification in the current workspace.
+This project is licensed under the MIT License.
